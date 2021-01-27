@@ -6,7 +6,6 @@ import os
 PATH_ROOT = os.path.dirname(__file__)
 URL = 'https://freelance.ru/freelancers/it-i-programmirovanie'
 HOST = 'https://freelance.ru'
-print(PATH_ROOT)
 
 
 def get_links(url, host):
@@ -19,32 +18,33 @@ def get_links(url, host):
 
 
 links = get_links(URL, HOST)
-pages_count = []
 
 
 def get_pages_count(links):
-	for link in links[2:7]:
+	for link in links[2:3]:
 		html = requests.get(link)
 		soup = BeautifulSoup(html.text, 'html.parser')
 		foo = soup.find('ul', class_='pagination pagination-lg')
 		bar = []
 		try:
 			for a in foo.find_all('a', href=True):
-				if a:
-					try:
-						foobar = int(a.string)
-					except:
-						continue
-					print(foobar)
+				try:
+					foobar = int(a.string)
+					bar.append(foobar)
+				except:
+					continue
 		except:
 			continue
+		try:
+			return bar[-1]
+		except:
+			return 1
 
 
-get_pages_count(links)
+pages_count = get_pages_count(links)
 print(pages_count)
 
-
-def get_users(links, host):
+def get_users(links):
 	for link in links:
 		html = requests.get(link)
 		users = BeautifulSoup(html.text, 'html.parser').find_all('a', class_='user-card-name')
@@ -54,4 +54,4 @@ def get_users(links, host):
 		return users_links
 
 
-users_links = get_users(links, HOST)
+users_links = get_users(links)
