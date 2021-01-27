@@ -19,19 +19,29 @@ def get_links(url, host):
 
 
 links = get_links(URL, HOST)
+pages_count = []
 
 
 def get_pages_count(links):
-	for link in links:
+	for link in links[2:7]:
 		html = requests.get(link)
 		soup = BeautifulSoup(html.text, 'html.parser')
 		foo = soup.find('ul', class_='pagination pagination-lg')
+		bar = []
 		try:
-			bar = foo.get('a')
+			for a in foo.find_all('a', href=True):
+				if a:
+					try:
+						foobar = int(a.string)
+					except:
+						continue
+					print(foobar)
 		except:
 			continue
-		pages = []
-		print(bar)
+
+
+get_pages_count(links)
+print(pages_count)
 
 
 def get_users(links, host):
@@ -44,5 +54,4 @@ def get_users(links, host):
 		return users_links
 
 
-pages_count = get_pages_count(links)
 users_links = get_users(links, HOST)
