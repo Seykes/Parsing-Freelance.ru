@@ -1,3 +1,4 @@
+# Парсинг всех специалистов с Freelance.ru
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -8,7 +9,7 @@ URL = 'https://freelance.ru/freelancers/it-i-programmirovanie'
 HOST = 'https://freelance.ru'
 
 
-def get_links(url, host):
+def get_links(url, host):  # Сбор всех ссылок на разделы специалистов
 	html = requests.get(url)
 	soup = BeautifulSoup(html.text, 'html.parser').find('div', class_='specs_nav_block')
 	links = []
@@ -17,7 +18,7 @@ def get_links(url, host):
 	return links
 
 
-
+# Получение количества страниц с разделов
 def get_pages_count(html):
 	soup = BeautifulSoup(html.text, 'html.parser')
 	foo = soup.find('ul', class_='pagination pagination-lg')
@@ -37,6 +38,7 @@ def get_pages_count(html):
 		return 1
 
 
+# Получение ссылок на профили всех спецов
 def get_users(links):
 	foo = 0
 	users_links = []
@@ -53,14 +55,36 @@ def get_users(links):
 				for user in users:
 					users_links.append(user.get('href'))
 		else:
-			print('Подключение не установлено')
+			print('Подключение не установлено, get_users.error')
 		print(users_links)
-	return users_links
+		return users_links
 
 
-def parse():
+def get_info(users):
+	data = []
+	for user in users:
+		html = requests.get(user)
+		if html.status_code == 200:
+			soup = BeautifulSoup(html.text, 'html.parser')
+			try:
+				data.append({
+						'phone': soup.find('p', class_='phone').get_text()})
+			except: pass
+			try:
+				data.append({
+						'telegram': soup.find('p', class_='telegram').get_text()})
+			except: pass
+		else:
+			print('Подключение не установлено, get_info.error')
+	return data
+
+
+def main():
 	links = get_links(URL, HOST)
 	users = get_users(links)
+	data = get_info(users)
+	print(data)
 
 
-parse()
+if __name__ == '__main__':
+	main()
