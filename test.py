@@ -114,6 +114,7 @@ def get_info(users, host):
 						 'vkontakte': vkontakte, 'instagram': instagram, 'dialog': dialog, 'skype': skype})
 		else:
 			print('Подключение не установлено, get_info.error')
+	print(data)
 	return data
 
 
