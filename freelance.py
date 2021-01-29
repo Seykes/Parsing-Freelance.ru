@@ -43,30 +43,29 @@ def get_users(links):
 	foo = 0
 	users_links = []
 	for link in links:
-		if foo < 2:
-			html = requests.get(link)
-			if html.status_code == 200:
-				pages_count = get_pages_count(html)
-				foo += 1
-				print(f'Парсинг раздела {foo} из {len(links)}... ')
-				for page in range(1, pages_count + 1):
-					html = requests.get(link, params={'page': page})
-					users = BeautifulSoup(html.text, 'html.parser').find_all('a', class_='user-card-name')
-					for user in users:
-						users_links.append(user.get('href'))
-			else:
-				print('Подключение не установлено, get_users.error')
-			print(users_links)
+		html = requests.get(link)
+		if html.status_code == 200:
+			pages_count = get_pages_count(html)
+			foo += 1
+			print(f'Парсинг раздела {foo} из {len(links)}... ')
+			for page in range(1, pages_count + 1):
+				html = requests.get(link, params={'page': page})
+				users = BeautifulSoup(html.text, 'html.parser').find_all('a', class_='user-card-name')
+				for user in users:
+					users_links.append(user.get('href'))
 		else:
-			return users_links
+			print('Подключение не установлено, get_users.error')
 	return users_links
 
 
 def get_info(users, host):
 	data = []
+	fs = 0
 	for user in users:
 		html = requests.get(user)
 		if html.status_code == 200:
+			fs += 1
+			print(f'Парсинг пользователя {fs} из {len(users)}')
 			soup = BeautifulSoup(html.text, 'html.parser')
 			#phone = soup.find('p', class_='phone')
 			#telegram = soup.find('p', class_='telegram')
@@ -85,8 +84,7 @@ def get_info(users, host):
 					l = text.text
 					fil = filter(str.isalpha, l)
 					tel = ''.join(fil)
-					tele = 't.me/' + tel
-
+					tele = 'https://t.me/' + tel
 			except: tele = None
 			try:
 				instagram = soup.find('p', class_='instagram').get_text()
@@ -96,7 +94,7 @@ def get_info(users, host):
 			except: vkontakte = None
 			try:
 				whatsapp = soup.find('p', class_='whatsapp').get_text(strip=True)
-				wp = (f'https://api.whatsapp.com/send/?phone=%2B{whatsapp}&text&app_absent=0')
+				wp = (f"https://api.whatsapp.com/send/?phone=%2B{whatsapp}&text&app_absent=0")
 			except: wp = None
 			try:
 				skype = soup.find('p', class_='skype').get_text()
